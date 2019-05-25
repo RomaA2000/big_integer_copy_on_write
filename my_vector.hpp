@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <shared_ptr.hpp>
 #include <type_traits>
-template <typename T, typename>
+template<typename T, typename>
 struct my_vector;
 
 template<typename T, typename = typename std::enable_if<std::is_default_constructible<T>::value>::type>
@@ -21,12 +21,11 @@ struct my_vector {
   sh_p shp;
   T *data = small;
 
-  T * allocator(T const *ptr, size_t size, size_t need_to) {
+  T *allocator(T const *ptr, size_t size, size_t need_to) {
     T *new_data = (T *) (operator new(need_to * sizeof(T)));
     std::copy(ptr, ptr + size, new_data);
     return new_data;
   }
-
 
   void resize_not_small(size_t in) {
     T *new_data = allocator(data, v_size, in);
@@ -46,7 +45,7 @@ struct my_vector {
   }
 
   void push_back_alloc(const T &x) {
-    size_t new_size = capacity << (size_t)1;
+    size_t new_size = capacity << (size_t) 1;
     T *new_data = allocator(data, v_size, new_size);
     new(new_data + v_size) T(x);
     destruct(data, 0, v_size);
@@ -84,7 +83,6 @@ struct my_vector {
  public:
 
   my_vector() = default;
-
 
   my_vector(const my_vector &in) {
     if (in.v_size <= SMALL_ARRAY_SIZE) {
@@ -130,19 +128,19 @@ struct my_vector {
     return data == small;
   }
 
-  T & operator[](size_t i) {
+  T &operator[](size_t i) {
     return data[i];
   }
 
-  T const & operator[](size_t i) const {
+  T const &operator[](size_t i) const {
     return data[i];
   }
 
-  T & back() {
+  T &back() {
     return data[v_size - 1];
   }
 
-  T const & back() const {
+  T const &back() const {
     return data[v_size - 1];
   }
 
@@ -185,7 +183,7 @@ struct my_vector {
     return shp.unique();
   }
 
-  my_vector & operator=(my_vector const &in) {
+  my_vector &operator=(my_vector const &in) {
     if (in.v_size <= SMALL_ARRAY_SIZE) {
       std::copy(in.data, in.data + in.v_size, small);
       destruct(data, 0, v_size);

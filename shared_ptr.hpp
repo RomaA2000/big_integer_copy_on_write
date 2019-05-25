@@ -11,20 +11,18 @@ struct inside_ptr;
 template<typename T, typename = typename std::enable_if<std::is_default_constructible<T>::value>::type>
 struct shared_ptr {
  private:
-  inside_ptr<T> * inf = nullptr;
+  inside_ptr<T> *inf = nullptr;
  public:
 
-  explicit shared_ptr(T *in)  {
+  explicit shared_ptr(T *in) {
     inf = new inside_ptr<T>(in);
   }
-
 
   shared_ptr(shared_ptr const &in) : inf(in.inf) {
     if (!empty()) {
       ++(*inf);
     }
   }
-
 
   ~shared_ptr() {
     if (!empty()) {
@@ -51,7 +49,7 @@ struct shared_ptr {
     return (*this);
   }
 
-  bool empty() const{
+  bool empty() const {
     return inf == nullptr;
   }
 
@@ -83,12 +81,12 @@ template<typename T>
 struct inside_ptr {
  public:
   uint64_t counter = 1;
-  T* ptr = nullptr;
+  T *ptr = nullptr;
   inside_ptr() = default;
-  explicit inside_ptr(T*);
+  explicit inside_ptr(T *);
   ~inside_ptr();
-  inside_ptr & operator++();
-  inside_ptr & operator--();
+  inside_ptr &operator++();
+  inside_ptr &operator--();
 };
 
 template<typename T>
