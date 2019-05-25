@@ -21,7 +21,7 @@ class big_integer {
   static const buffer_type MAIN_DIGIT = (buffer_type)MAIN_MAX + (buffer_type) 1;
 
   bool sgn = false;
-  my_vector<main_type> data = my_vector<main_type >();
+  my_vector<main_type> data = my_vector<main_type>();
 
   big_integer &mod_or_div(big_integer const &, bool);
   big_integer &part_add(big_integer const &);
