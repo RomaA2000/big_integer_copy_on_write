@@ -206,12 +206,12 @@ my_vector<T>::my_vector(size_t in) {
 }
 template<typename T>
 void my_vector<T>::resize_not_small(size_t in) {
-  T *alloc_data = allocator(data, v_size, in);
-  construct(alloc_data, v_size, in);
+  T *new_data = allocator(data, v_size, in);
+  construct(new_data, v_size, in);
   for (size_t i = 0; i < v_size; ++i) {
     data[i].~T();
   }
-  set_not_small(alloc_data, in);
+  set_not_small(new_data, in);
 }
 template<typename T>
 void my_vector<T>::resize_small(size_t new_size) {
@@ -223,11 +223,11 @@ void my_vector<T>::resize_small(size_t new_size) {
 }
 template<typename T>
 void my_vector<T>::push_back_alloc(const T &x) {
-  size_t new_capacity_ = capacity << 1;
-  T *alloc_data_ = allocator(data, v_size, new_capacity_);
-  new(alloc_data_ + v_size) T(x);
+  size_t new_size = capacity << (size_t)1;
+  T *new_data = allocator(data, v_size, new_size);
+  new(new_data + v_size) T(x);
   destruct(data, 0, v_size);
-  set_not_small(alloc_data_, new_capacity_);
+  set_not_small(new_data, new_size);
 }
 template<typename T>
 void my_vector<T>::push_back_no_alloc(const T &in) {
@@ -236,13 +236,13 @@ void my_vector<T>::push_back_no_alloc(const T &in) {
 template<typename T>
 void my_vector<T>::set_small() {
   shp.reset(nullptr);
-  data = small;
   capacity = SMALL_ARRAY_SIZE;
+  data = small;
 }
 template<typename T>
 void my_vector<T>::set_not_small(T *in, size_t new_capacity) {
-  data = in;
   capacity = new_capacity;
+  data = in;
   shp.reset(in);
 }
 template<typename T>
