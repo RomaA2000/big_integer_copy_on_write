@@ -7,11 +7,11 @@
 #include <shared_ptr.hpp>
 
 template<typename T>
-class my_vector {
-  static const size_t SMALL_ARRAY_SIZE = 7;
+struct my_vector {
+ private:
+  static const size_t SMALL_ARRAY_SIZE = 6;
   using sh_p = shared_ptr<T>;
 
- private:
   size_t v_size = 0;
   size_t capacity = SMALL_ARRAY_SIZE;
   T small[SMALL_ARRAY_SIZE];
@@ -97,13 +97,13 @@ size_t my_vector<T>::size() const {
   return v_size;
 }
 template<typename T>
-void my_vector<T>::resize(size_t newsize_) {
-  if (newsize_ > capacity) {
-    resize_not_small(newsize_);
+void my_vector<T>::resize(size_t in) {
+  if (in > capacity) {
+    resize_not_small(in);
   } else {
-    resize_small(newsize_);
+    resize_small(in);
   }
-  v_size = newsize_;
+  v_size = in;
 }
 template<typename T>
 void my_vector<T>::reverse() {
@@ -112,11 +112,11 @@ void my_vector<T>::reverse() {
   }
 }
 template<typename T>
-void my_vector<T>::push_back(const T &x) {
+void my_vector<T>::push_back(const T &in) {
   if (v_size >= capacity) {
-    push_back_alloc(x);
+    push_back_alloc(in);
   } else {
-    push_back_no_alloc(x);
+    push_back_no_alloc(in);
   }
   ++v_size;
 }
@@ -132,9 +132,9 @@ bool my_vector<T>::unique() const {
   return shp.unique();
 }
 template<typename T>
-my_vector<T> &my_vector<T>::operator=(my_vector const &rhs) {
-  if (rhs.v_size <= SMALL_ARRAY_SIZE) {
-    std::copy(rhs.data, rhs.data + rhs.v_size, small);
+my_vector<T> &my_vector<T>::operator=(my_vector const &in) {
+  if (in.v_size <= SMALL_ARRAY_SIZE) {
+    std::copy(in.data, in.data + in.v_size, small);
     destruct(data, 0, v_size);
     shp.reset(nullptr);
     set_small();
@@ -142,47 +142,47 @@ my_vector<T> &my_vector<T>::operator=(my_vector const &rhs) {
     if (shp.unique()) {
       destruct(data, 0, v_size);
     }
-    shp = rhs.shp;
-    data = rhs.data;
-    capacity = rhs.capacity;
+    shp = in.shp;
+    data = in.data;
+    capacity = in.capacity;
   }
-  v_size = rhs.v_size;
+  v_size = in.v_size;
   return *this;
 }
 template<typename T>
-my_vector<T> &my_vector<T>::swap(my_vector &v) {
-  if (is_small() || v.is_small()) {
-    if (is_small() && v.is_small()) {
+my_vector<T> &my_vector<T>::swap(my_vector &in) {
+  if (is_small() || in.is_small()) {
+    if (is_small() && in.is_small()) {
       for (size_t i = 0; i < SMALL_ARRAY_SIZE; ++i) {
-        std::swap(data[i], v.data[i]);
+        std::swap(data[i], in.data[i]);
       }
     } else if (is_small()) {
-      std::copy(small, small + v_size, v.small);
-      std::swap(shp, v.shp);
-      std::swap(data, v.data);
-      capacity = v.capacity;
-      v.set_small();
+      std::copy(small, small + v_size, in.small);
+      std::swap(shp, in.shp);
+      std::swap(data, in.data);
+      capacity = in.capacity;
+      in.set_small();
     } else {
-      v.swap(*this);
+      in.swap(*this);
     }
   } else {
-    std::swap(shp, v.shp);
-    std::swap(capacity, v.capacity);
-    std::swap(data, v.data);
+    std::swap(shp, in.shp);
+    std::swap(capacity, in.capacity);
+    std::swap(data, in.data);
   }
-  std::swap(v_size, v.v_size);
+  std::swap(v_size, in.v_size);
   return *this;
 }
 template<typename T>
-my_vector<T>::my_vector(const my_vector &rhs) {
-  if (rhs.v_size <= SMALL_ARRAY_SIZE) {
-    std::copy(rhs.data, rhs.data + rhs.v_size, data);
+my_vector<T>::my_vector(const my_vector &in) {
+  if (in.v_size <= SMALL_ARRAY_SIZE) {
+    std::copy(in.data, in.data + in.v_size, data);
   } else {
-    data = rhs.data;
-    capacity = rhs.capacity;
-    shp = rhs.shp;
+    data = in.data;
+    capacity = in.capacity;
+    shp = in.shp;
   }
-  v_size = rhs.v_size;
+  v_size = in.v_size;
 }
 template<typename T>
 void my_vector<T>::clear() {
@@ -194,31 +194,31 @@ my_vector<T>::~my_vector() {
   destruct(data, 0, v_size);
 }
 template<typename T>
-my_vector<T>::my_vector(size_t initial_size_) {
-  if (initial_size_ <= SMALL_ARRAY_SIZE) {
-    construct(data, 0, initial_size_);
+my_vector<T>::my_vector(size_t in) {
+  if (in <= SMALL_ARRAY_SIZE) {
+    construct(data, 0, in);
   } else {
-    auto alloc_data_ = static_cast<T *> (operator new(initial_size_ * sizeof(T)));
-    construct(alloc_data_, 0, initial_size_);
-    set_not_small(alloc_data_, initial_size_);
+    auto alloc_data_ = (T *) (operator new(in * sizeof(T)));
+    construct(alloc_data_, 0, in);
+    set_not_small(alloc_data_, in);
   }
-  v_size = initial_size_;
+  v_size = in;
 }
 template<typename T>
-void my_vector<T>::resize_not_small(size_t new_size_) {
-  T *alloc_data_ = allocator(data, v_size, new_size_);
-  construct(alloc_data_, v_size, new_size_);
+void my_vector<T>::resize_not_small(size_t in) {
+  T *alloc_data = allocator(data, v_size, in);
+  construct(alloc_data, v_size, in);
   for (size_t i = 0; i < v_size; ++i) {
     data[i].~T();
   }
-  set_not_small(alloc_data_, new_size_);
+  set_not_small(alloc_data, in);
 }
 template<typename T>
-void my_vector<T>::resize_small(size_t new_size_) {
-  if (new_size_ > v_size) {
-    construct(data, v_size, new_size_);
+void my_vector<T>::resize_small(size_t new_size) {
+  if (new_size > v_size) {
+    construct(data, v_size, new_size);
   } else {
-    destruct(data, new_size_, v_size);
+    destruct(data, new_size, v_size);
   }
 }
 template<typename T>
@@ -230,8 +230,8 @@ void my_vector<T>::push_back_alloc(const T &x) {
   set_not_small(alloc_data_, new_capacity_);
 }
 template<typename T>
-void my_vector<T>::push_back_no_alloc(const T &x) {
-  new(data + v_size) T(x);
+void my_vector<T>::push_back_no_alloc(const T &in) {
+  new(data + v_size) T(in);
 }
 template<typename T>
 void my_vector<T>::set_small() {
@@ -240,10 +240,10 @@ void my_vector<T>::set_small() {
   capacity = SMALL_ARRAY_SIZE;
 }
 template<typename T>
-void my_vector<T>::set_not_small(T *allocated_, size_t new_capacity_) {
-  data = allocated_;
-  capacity = new_capacity_;
-  shp.reset(allocated_);
+void my_vector<T>::set_not_small(T *in, size_t new_capacity) {
+  data = in;
+  capacity = new_capacity;
+  shp.reset(in);
 }
 template<typename T>
 void my_vector<T>::construct(T *ptr, const size_t begin, const size_t end) {
