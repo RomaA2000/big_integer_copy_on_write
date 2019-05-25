@@ -83,7 +83,7 @@ class big_integer {
   big_integer &operator|=(big_integer const &);
   big_integer &operator^=(big_integer const &);
 
-  big_integer &abstract_binary(big_integer &, main_type (main_type, main_type));
+  big_integer &abstract_binary(big_integer &, std::function<main_type(main_type,main_type)> const &);
   big_integer &operator<<=(int);
   big_integer &operator>>=(int);
 
@@ -421,7 +421,7 @@ void big_integer::mov_right(size_t n = 1) {
 
 big_integer &big_integer::operator=(big_integer const &in) = default;
 
-big_integer &big_integer::abstract_binary(big_integer &in, main_type (*f)(main_type, main_type)) {
+big_integer &big_integer::abstract_binary(big_integer &in, std::function<main_type(main_type,main_type)> const & f) {
   this->data.detach();
   size_t max_size = std::max(size(), in.size());
   to_addition();
@@ -439,19 +439,19 @@ big_integer &big_integer::abstract_binary(big_integer &in, main_type (*f)(main_t
 
 big_integer &big_integer::operator&=(big_integer const &in) {
   big_integer in_new(in);
-  abstract_binary(in_new, [](main_type a, main_type b) { return (a & b); });
+  abstract_binary(in_new, std::bit_and<>());
   return *(this);
 }
 
 big_integer &big_integer::operator|=(big_integer const &in) {
   big_integer in_new(in);
-  abstract_binary(in_new, [](main_type a, main_type b) { return (a | b); });
+  abstract_binary(in_new, std::bit_or<>());
   return *(this);
 }
 
 big_integer &big_integer::operator^=(big_integer const &in) {
   big_integer in_new(in);
-  abstract_binary(in_new, [](main_type a, main_type b) { return (a ^ b); });
+  abstract_binary(in_new, std::bit_xor<>());
   return *(this);
 }
 
